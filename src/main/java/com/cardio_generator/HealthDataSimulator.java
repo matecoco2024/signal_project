@@ -25,12 +25,26 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
+/**
+ * This class is the main entry point for the Health Data Simulator application.
+ * It is responsible for parsing command line arguments, initializing the output strategy, and scheduling tasks for each patient.
+ * 
+ * @author tpepels
+ */
+
 public class HealthDataSimulator {
 
     private static int patientCount = 50; // Default number of patients
     private static ScheduledExecutorService scheduler;
     private static OutputStrategy outputStrategy = new ConsoleOutputStrategy(); // Default output strategy
     private static final Random random = new Random();
+
+    /**
+     * The main method of the Health Data Simulator application.
+     * 
+     * @param args The command line arguments
+     * @throws IOException
+     */
 
     public static void main(String[] args) throws IOException {
 
@@ -43,6 +57,13 @@ public class HealthDataSimulator {
 
         scheduleTasksForPatients(patientIds);
     }
+
+    /**
+     * This method parses the command line arguments and sets the patient count and output strategy accordingly.
+     * 
+     * @param args The command line arguments
+     * @throws IOException
+     */
 
     private static void parseArguments(String[] args) throws IOException {
         for (int i = 0; i < args.length; i++) {
@@ -122,6 +143,12 @@ public class HealthDataSimulator {
                 "  This command simulates data for 100 patients and sends the output to WebSocket clients connected to port 8080.");
     }
 
+    /**
+     * this method initializes the patient IDs.
+     * @param patientCount
+     * @return List of patient IDs
+     */
+
     private static List<Integer> initializePatientIds(int patientCount) {
         List<Integer> patientIds = new ArrayList<>();
         for (int i = 1; i <= patientCount; i++) {
@@ -129,6 +156,11 @@ public class HealthDataSimulator {
         }
         return patientIds;
     }
+
+    /**
+     * This method schedules the tasks for each patient.
+     * @param patientIds
+     */
 
     private static void scheduleTasksForPatients(List<Integer> patientIds) {
         ECGDataGenerator ecgDataGenerator = new ECGDataGenerator(patientCount);
