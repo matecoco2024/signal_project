@@ -181,4 +181,9 @@ public class HealthDataSimulator {
     private static void scheduleTask(Runnable task, long period, TimeUnit timeUnit) {
         scheduler.scheduleAtFixedRate(task, random.nextInt(5), period, timeUnit);
     }
+
+    public void setOutputStrategy(FileOutputStrategy fileOutputStrategy) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setOutputStrategy'");
+    }
 }
