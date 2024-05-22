@@ -92,9 +92,10 @@ public class AlertGenerator {
     private void checkDiastolicPressure(List<PatientRecord> records, String patientId) {
         int count = 0;
         for (int i = records.size() - 1; i >= 0; i--) {
+            logger.log(Level.INFO, "Checking diastolic pressure: {0}", records.get(i).getMeasurementValue());
             PatientRecord currentRecord = records.get(i);
             if (currentRecord.getMeasurementValue() > 120 || currentRecord.getMeasurementValue() < 60) {
-                triggerAlert(new Alert(patientId, "abnormalDiastolicPressure", currentRecord.getTimestamp()));
+                triggerAlert(new Alert(patientId, "Critical Threshold Pressure", currentRecord.getTimestamp()));
                 break;
             } else {
                 if (i > 0 && Math.abs(records.get(i - 1).getMeasurementValue() - currentRecord.getMeasurementValue()) > 10) {
@@ -103,8 +104,8 @@ public class AlertGenerator {
                     count = 0;
                 }
             }
-            if (count == 3) {
-                triggerAlert(new Alert(patientId, "changingDiastolicPressure", currentRecord.getTimestamp()));
+            if (count == 2) {
+                triggerAlert(new Alert(patientId, "Pressure Trend Alert", currentRecord.getTimestamp()));
                 break;
             }
         }
@@ -115,17 +116,19 @@ public class AlertGenerator {
         for (int i = records.size() - 1; i >= 0; i--) {
             PatientRecord currentRecord = records.get(i);
             if (currentRecord.getMeasurementValue() > 180 || currentRecord.getMeasurementValue() < 90) {
-                triggerAlert(new Alert(patientId, "abnormalSystolicPressure", currentRecord.getTimestamp()));
+                triggerAlert(new Alert(patientId, "Critical Threshold Pressure", currentRecord.getTimestamp()));
                 break;
             } else {
+                //logger.log(Level.INFO, "Checking systolic pressure: {0}", currentRecord.getMeasurementValue());
                 if (i > 0 && Math.abs(records.get(i - 1).getMeasurementValue() - currentRecord.getMeasurementValue()) > 10) {
                     count++;
+                    //logger.log(Level.INFO, "Count: {0}", count);
                 } else {
                     count = 0;
                 }
             }
-            if (count == 3) {
-                triggerAlert(new Alert(patientId, "changingSystolicPressure", currentRecord.getTimestamp()));
+            if (count == 2) {
+                triggerAlert(new Alert(patientId, "Pressure Trend Alert", currentRecord.getTimestamp()));
                 break;
             }
         }
@@ -134,13 +137,14 @@ public class AlertGenerator {
     private void checkBloodSaturation(List<PatientRecord> records, String patientId) {
         for (int i = records.size() - 1; i >= 0; i--) {
             PatientRecord currentRecord = records.get(i);
+            logger.log(Level.INFO, "timestamp and value: {0}", currentRecord.getTimestamp() + " " + currentRecord.getMeasurementValue());
             if (currentRecord.getMeasurementValue() < 92) {
-                triggerAlert(new Alert(patientId, "abnormalBloodSaturation", currentRecord.getTimestamp()));
+                triggerAlert(new Alert(patientId, " Low Saturation", currentRecord.getTimestamp()));
                 break;
             } else {
-                if (i > 0 && records.get(i - 1).getMeasurementValue() - currentRecord.getMeasurementValue() > 5
-                        && Math.abs(records.get(i - 1).getTimestamp() - currentRecord.getTimestamp()) <= 10) {
-                    triggerAlert(new Alert(patientId, "decreasingBloodSaturation", currentRecord.getTimestamp()));
+                if (i >= 1 && records.get(i - 1).getMeasurementValue() - currentRecord.getMeasurementValue() > 5
+                        && Math.abs(records.get(i - 1).getTimestamp() - currentRecord.getTimestamp()) <= 600000L) {
+                    triggerAlert(new Alert(patientId, "Rapid Drop Saturation", currentRecord.getTimestamp()));
                 }
             }
         }
@@ -148,39 +152,38 @@ public class AlertGenerator {
 
     private void checkHypotensiveHypoxemia(List<PatientRecord> systolicRecords, List<PatientRecord> saturationRecords, String patientId) {
         if (systolicRecords.isEmpty() || saturationRecords.isEmpty()) return;
-        double latestSystolic = systolicRecords.get(systolicRecords.size() - 1).getMeasurementValue();
-        double latestSaturation = saturationRecords.get(saturationRecords.size() - 1).getMeasurementValue();
-        if (latestSystolic < 90 && latestSaturation <= 92) {
-            triggerAlert(new Alert(patientId, "Hypotensive Hypoxemia", systolicRecords.get(systolicRecords.size() - 1).getTimestamp()));
+        for (int i = 1; i <= Math.max(systolicRecords.size(), saturationRecords.size()); i++) {
+            double latestSystolic = systolicRecords.get(systolicRecords.size() - i).getMeasurementValue();
+            double latestSaturation = saturationRecords.get(saturationRecords.size() - i).getMeasurementValue();
+            if (latestSystolic < 90 && latestSaturation <= 92) {
+                triggerAlert(new Alert(patientId, "Hypotensive Hypoxemia", systolicRecords.get(systolicRecords.size() - 1).getTimestamp()));
+            }
+            // logger.log(Level.INFO, "Checking hypotensive hypoxemia: {0}", latestSaturation + " " + latestSystolic);
         }
     }
 
     private void checkECG(List<PatientRecord> records, String patientId) {
         if (records.isEmpty()) return;
         for (int i = records.size() - 1; i >= 0; i--) {
-            double value = records.get(i).getMeasurementValue();
-            if (value > 100 || value < 50) {
+            PatientRecord curenRecord = records.get(i);
+            if (curenRecord.getMeasurementValue() > 100 || curenRecord.getMeasurementValue() < 50) {
                 triggerAlert(new Alert(patientId, "Abnormal Heart Rate", records.get(i).getTimestamp()));
-                return;
             } else {
-                if (i > 0 && Math.abs(records.get(i - 1).getMeasurementValue() - value) >= 15) {
+                if (i > 0 && Math.abs(records.get(i - 1).getMeasurementValue() - curenRecord.getMeasurementValue()) >= 15) {
                     triggerAlert(new Alert(patientId, "Irregular Beat", records.get(i).getTimestamp()));
-                    return;
                 }
             }
         }
     }
 
-    /**
-     * Triggers an alert for the monitoring system. This method can be extended to
-     * notify medical staff, log the alert, or perform other actions. The method
-     * currently assumes that the alert information is fully formed when passed as
-     * an argument.
-     *
-     * @param alert the alert object containing details about the alert condition
+    /*
+     * Triggers an alert and logs the alert message.
+     
+        * @param alert the alert to trigger
+        
      */
     private void triggerAlert(Alert alert) {
         alerts.add(alert);
-        logger.log(Level.WARNING, "ALERT: {0}", alert.toString());
+        logger.log(Level.WARNING, "ALERT: {0}", alert.getCondition());
     }
 }
