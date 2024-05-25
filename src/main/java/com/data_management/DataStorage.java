@@ -1,6 +1,7 @@
 package com.data_management;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ import com.alerts.AlertGenerator;
  * patient IDs.
  */
 public class DataStorage {
+
     private Map<Integer, Patient> patientMap; // Stores patient objects indexed by their unique patient ID.3
 
     /**
@@ -63,7 +65,7 @@ public class DataStorage {
         if (patient != null) {
             return patient.getRecords(startTime, endTime);
         }
-        return new ArrayList<>(); // return an empty list if no patient is found
+        return Collections.emptyList(); // return an empty list if no patient is found
     }
 
     /**

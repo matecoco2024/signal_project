@@ -14,7 +14,7 @@ import com.cardio_generator.outputs.ConsoleOutputStrategy;
 import com.cardio_generator.outputs.FileOutputStrategy;
 import com.cardio_generator.outputs.OutputStrategy;
 import com.cardio_generator.outputs.TcpOutputStrategy;
-import com.cardio_generator.outputs.WebSocketOutputStrategy;
+import com.data_management.WebSocketOutputStrategy;
 
 import java.util.Collections;
 import java.util.List;

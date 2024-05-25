@@ -46,25 +46,4 @@ public class FileDataReader implements DataReader {
             }
         }
     }
-
-    public static void main(String[] args) {
-        if (args.length != 1) {
-            System.out.println("Usage: java FileDataReader <filePath>");
-            System.exit(1);
-        }
-    
-        String filePath = args[0];
-        FileDataReader reader = new FileDataReader(filePath);
-    
-        // Create a DataStorage instance
-        DataStorage dataStorage = new DataStorage();
-    
-        try {
-            reader.readData(dataStorage);
-            System.out.println("Data read successfully from " + filePath);
-        } catch (IOException e) {
-            System.out.println("Error reading data from " + filePath);
-            e.printStackTrace();
-        }
-    }
 }

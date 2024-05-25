@@ -1,9 +1,14 @@
-package com.cardio_generator.outputs;
+package com.data_management;
 
 import org.java_websocket.WebSocket;
+import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.server.WebSocketServer;
 
+import com.cardio_generator.outputs.OutputStrategy;
+
 import java.net.InetSocketAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class WebSocketOutputStrategy implements OutputStrategy {
 

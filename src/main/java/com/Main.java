@@ -1,9 +1,11 @@
 package com;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import com.cardio_generator.HealthDataSimulator;
 import com.data_management.DataStorage;
+import com.data_management.SimpleWebSocketClient;
 
 public class Main {
     public static void main(String[] args) throws IOException {
